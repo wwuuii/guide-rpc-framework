@@ -39,12 +39,9 @@ public final class SingletonFactory {
             // 1.1 holder保证了可见性，从而不会使用没有初始化的对象
             return c.cast(holder.get());
         }
-
+        holder = OBJECT_MAP_NEW.computeIfAbsent(key, k -> new Holder<>());
         // 2. 同步块：确保只有一个线程创建实例
-        synchronized (lock) {
-            // 3. 第二次检查：防止其他线程已创建holder
-            holder = OBJECT_MAP_NEW.computeIfAbsent(key, k -> new Holder<>());
-
+        synchronized (holder) {
             // 4. 创建实例（此处不需要再次检查holder.get()，因为锁保证了互斥性）
             if (holder.get() == null) {
                 try {
